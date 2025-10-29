@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-spring-session-tables
+      author: your-name
+      changes:
+        - createTable:
+            tableName: SPRING_SESSION
+            columns:
+              - column:
+                  name: PRIMARY_ID
+                  type: char(36)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: SESSION_ID
+                  type: char(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CREATION_TIME
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: LAST_ACCESS_TIME
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: MAX_INACTIVE_INTERVAL
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EXPIRY_TIME
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PRINCIPAL_NAME
+                  type: varchar(100)
+        - createTable:
+            tableName: SPRING_SESSION_ATTRIBUTES
+            columns:
+              - column:
+                  name: SESSION_PRIMARY_ID
+                  type: char(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ATTRIBUTE_NAME
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ATTRIBUTE_BYTES
+                  type: bytea
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: SPRING_SESSION_ATTRIBUTES
+            columnNames: SESSION_PRIMARY_ID, ATTRIBUTE_NAME
+        - addForeignKeyConstraint:
+            baseTableName: SPRING_SESSION_ATTRIBUTES
+            baseColumnNames: SESSION_PRIMARY_ID
+            constraintName: fk_session_attributes_session
+            referencedTableName: SPRING_SESSION
+            referencedColumnNames: PRIMARY_ID
+            onDelete: CASCADE
