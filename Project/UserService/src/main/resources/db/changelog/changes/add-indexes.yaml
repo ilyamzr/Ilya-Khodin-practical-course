@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-indexes
+      author: your-name
+      changes:
+        - createIndex:
+            indexName: idx_users_email
+            tableName: users
+            columns:
+              - column:
+                  name: email
+        - createIndex:
+            indexName: idx_card_info_user_id
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id
