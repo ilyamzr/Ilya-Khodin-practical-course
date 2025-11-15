@@ -1,0 +1,7 @@
+{
+  "id": 1,
+  "name": "Jane",
+  "surname": "Doe",
+  "birthDate": "1990-05-15",
+  "email": "jane.doe@example.com"
+}
