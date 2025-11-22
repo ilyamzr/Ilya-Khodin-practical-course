@@ -1,0 +1,108 @@
+networks:
+  microservice-network:
+    driver: bridge
+
+services:
+  api-gateway:
+    build:
+      context: D:\\innowise\\ApiGateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: bXlzdXBlcnNlY3JldGtleWZvcnRlc3RpbmcyMzQyMzRrbmpzbGRmampzZGxrbmpzZGY
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - auth-service
+      - user-service
+      - order-service
+    networks:
+      - microservice-network
+  auth-service:
+    build:
+      context: D:\\innowise\\AuthenticationService
+      dockerfile: Dockerfile
+    environment:
+      JWT_SECRET: bXlzdXBlcnNlY3JldGtleWZvcnRlc3RpbmcyMzQyMzRrbmpzbGRmampzZGxrbmpzZGY
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_bd
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: 3121
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - auth-bd
+    networks:
+      - microservice-network
+
+  auth-bd:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 3121
+      POSTGRES_DB: auth_bd
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+    networks:
+      - microservice-network
+
+  user-service:
+    build:
+      context: D:\\innowise\\Project
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/shop_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: 3121
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - user-db
+      - redis
+    networks:
+      - microservice-network
+
+  user-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 3121
+      POSTGRES_DB: shop_db
+    volumes:
+      - user-data:/var/lib/postgresql/data
+    networks:
+      - microservice-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - microservice-network
+
+  order-service:
+    build:
+      context: D:\\innowise\\orderService
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/order_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=3121
+      - CLIENT_USER_SERVICE_URL=http://host.docker.internal:8080
+    depends_on:
+      - order-db
+    networks:
+      - microservice-network
+
+  order-db:
+      image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: 3121
+        POSTGRES_DB: order_db
+      volumes:
+        - user-data:/var/lib/postgresql/data
+      networks:
+        - microservice-network
+
+volumes:
+  auth-data:
+  user-data:
